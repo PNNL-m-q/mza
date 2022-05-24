@@ -1,0 +1,8 @@
+7/10/2017 12:55:15 PM	This file is being created as a condensed version of Z:\PC_160_180.d
+7/10/2017 12:55:32 PM	Condensing is done
+2/11/2021 10:43:09 AM	Reprocessing started.
+2/11/2021 10:43:10 AM		Recentroiding requested
+2/11/2021 10:43:10 AM			Abs threshold = 100 (5 MS/MS)
+2/11/2021 10:43:10 AM			Pct threshold = 0.010 (0.010 MS/MS)
+2/11/2021 10:43:10 AM			Peak min valley = 0.70
+2/11/2021 10:43:10 AM	Reprocessing finished.
