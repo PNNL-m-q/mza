@@ -13,10 +13,10 @@ Once converted, MZA files can be easily accessed from any programming language a
 ### USAGE
 mza.exe has been tested on Windows 10. Examples:
 
-* Convert a single '.d' file:
+* Convert a single '.d' file:<br />
 mza -file test_data\LowHigh_PC_160_180_frames1-10.d -intensityThreshold 20
 
-* Convert all '.d' files in a directory:
+* Convert all '.d' files in a directory:<br />
 mza -file test_data -extension .d -intensityThreshold 20
 
 
