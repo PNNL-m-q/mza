@@ -1,0 +1,4 @@
+h5py==3.1.0
+hdf5plugin==3.1.1
+numpy==1.21.5
+matplotlib==3.5.1

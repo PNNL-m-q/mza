@@ -1,7 +1,6 @@
 import h5py
 import hdf5plugin
 import numpy as np
-# pip install matplotlib
 import matplotlib.pyplot as plt
 
 mzafile = "test_data/LCMSMS_Lipids_POS.mza"
