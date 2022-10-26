@@ -3,7 +3,7 @@
 Untargeted mass spectrometry (MS)-based workflows incorporating orthogonal separations, such as liquid chromatography (LC) and ion mobility spectrometry (IM), and collecting extensive fragmentation data with data-independent acquisition (DIA) methods or alternative activation techniques, are providing heterogeneous and multidimensional information which allows deeper understanding in omics studies. However, the large volume of these rich multidimensional spectra challenges current MS-data storage and access technologies. The cross-platform and cross-programming language tool, MZA™ (pronounced m-za), was created to facilitate software development and artificial intelligence research in these kind of multidimensional MS data.
 
 MZA is a stand-alone and self-contained command-line executable which converts multidimensional MS data from files in proprietary vendor formats to the MZA simple data structure based on the HDF5 format.
-Once converted, MZA files can be easily accessed from any programming language and operating system using standard HDF5 libraries available (e.g., h5py and rhdf5).
+Once converted, MZA files can be easily accessed from any programming language and operating system using generic HDF5 libraries available (e.g., h5py and rhdf5).
 
 ### Input formats supported:
 * Agilent MassHunter ion mobility '.d'
@@ -22,7 +22,7 @@ Once converted, MZA files can be easily accessed from any programming language a
 ### USAGE: data conversion
 
 #### Windows
-Tested on Windows 10. The MZA executable has no requirememts, it can be run directly on Windows. Examples:
+Tested on Windows 10. The MZA executable has no requirements, it can be run directly on Windows. Examples:
 
 Convert a single '.d' file:<br />
 ```bash
@@ -34,7 +34,19 @@ Convert all '.d' files in a directory:<br />
 mza -file test_data -extension .d -intensityThreshold 20
 ```
 
-#### Unix-like operating systems
+#### Unix-like operating systems - Using Docker container
+
+Build the container:
+```bash
+docker build -t mzacontainer:latest -f docker/Dockerfile .
+```
+
+Run the container:
+```bash
+docker run -it --rm -e WINEDEBUG=-all -v test_data:/data mzacontainer wine mza.exe -file /data/LCMSMS_Lipids_POS.raw
+```
+
+#### Unix-like operating systems - Using Wine
 Tested on Ubuntu version 22.04.1. For Unix-like operating systems, the MZA executable requires pre-installation of the Wine compatibility layer (www.winehq.org).
 
 1. Install Wine (tested version 6.0.3):
