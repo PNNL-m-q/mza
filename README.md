@@ -75,6 +75,20 @@ wine mza -file test_data -extension .d -intensityThreshold 20
 
 ### USAGE: data access in .mza files
 
+The MZA file structure is simple: a metadata table and two groups with 1D arrays stored individually as HDF5 datasets per spectrum.
+* Metadata (HDF5 dataset): each row in the metadata table (see csv files in test_data) represents a spectrum and the columns represent the properties of the spectrum such as scan number (unique to each spectrum), MS level, activation (i.e., ion fragmentation type), retention time, ion mobility arrival time, etc. 
+
+Spectra are stored omitting zero-intensity values and as two jagged arrays, one in each corresponding group and named as the "Scan" value in the metadata table:
+* Arrays_intensity (HDF5 group): contains 1D arrays with intensity values.
+* Arrays_mz (HDF5 group): contains 1D arrays with mass-to-charge (m/z) values.
+>Example for spectrum with Scan value 630: Arrays_intensity/630, Arrays_mz/630.
+
+For IM spectra the m/z dimension is stored as indexes (mzbins):
+* Arrays_mzbin (HDF5 group): contains 1D arrays with indexes to Full_mz_array.
+* Full_mz_array (HDF5 dataset): 1D array of full m/z values common for all spectra in the file.
+Note: IonMobilityBin = 0, represents the total frame spectrum or summed spectra in the frame (i.e., ignores IM dimension).
+>Example for spectrum with Scan value 630: Arrays_intensity/630, Arrays_mzbin/630.
+
 Example scripts are provided in the respective folders. R requires the rhdf5 package and Python requires the h5py, hdf5plugin, numpy and matplotlib packages (see requirements.txt).
 
 ### Metadata table columns
