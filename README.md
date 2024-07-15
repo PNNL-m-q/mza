@@ -6,7 +6,8 @@ MZA is a stand-alone and self-contained command-line executable which converts m
 Once converted, MZA files can be easily accessed from any programming language and operating system using generic HDF5 libraries available (e.g., h5py and rhdf5).
 
 ### Input formats supported:
-* Agilent MassHunter ion mobility '.d'
+* Agilent ion mobility '.d'
+* Bruker ion mobility 'd'
 * Thermo '.raw'
 * mzML
 
@@ -99,6 +100,7 @@ Example scripts are provided in the respective folders. R requires the rhdf5 pac
 | MSLevel     | numeric     | 1:MS1, 2:MS2  |
 | Polarity    | character   | POS, NEG |
 | Activation  | character   | CID, HCD, ETD, UVPD, EThcD |
+| CollisionEnergy | numeric     |  |
 | RetentionTime | numeric    | minutes |
 | PrecursorScan | numeric    |  |
 | PrecursorMonoisotopicMz | numeric    |  |
@@ -124,5 +126,6 @@ If you use MZA please cite: Bilbao et al. "MZA: a data conversion tool to facili
 This software binary and example scripts are freely provided under the BSD License here included. 
 However, the binary software depends on other software libraries which place further restrictions on its use and redistribution. 
 By using MZA, you agree to comply with the restrictions imposed on you by the license agreements of the software libraries on which it depends:
-* Agilent Mass Hunter Data Access Component Library (www.agilent.com)
-* Thermo-Scientific MSFileReader Library (www.thermofisher.com)
+* Agilent Technologies Mass Hunter Data Access Component Library (www.agilent.com)
+* Thermo Fisher Scientific MSFileReader Library (www.thermofisher.com)
+* Bruker TDF-SDK data access library (www.bruker.com)
