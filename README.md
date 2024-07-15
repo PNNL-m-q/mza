@@ -6,8 +6,8 @@ MZA is a stand-alone and self-contained command-line executable which converts m
 Once converted, MZA files can be easily accessed from any programming language and operating system using generic HDF5 libraries available (e.g., h5py and rhdf5).
 
 ### Input formats supported:
-* Agilent ion mobility '.d'
-* Bruker ion mobility 'd'
+* Agilent '.d' (with or without ion mobility)
+* Bruker ion mobility 'd' (improvements in progress, very slow currently)
 * Thermo '.raw'
 * mzML
 
@@ -20,7 +20,7 @@ Once converted, MZA files can be easily accessed from any programming language a
 * -extension arg: Input file extension. To convert multiple files in a path provide the extension: .mzML, .raw or .d.
 * -intensityThreshold arg: The minimum intensity that must be exceeded for signals to be included in the output mza file.
 
-### USAGE: data conversion
+### USAGE: data conversion. Download the latest version (Releases section, right panel) and decompress it.
 
 #### Windows
 Tested on Windows 10. The MZA executable has no requirements, it can be run directly on Windows. Examples:
@@ -90,6 +90,10 @@ For IM spectra the m/z dimension is stored as indexes (mzbins):
 Note: IonMobilityBin = 0, represents the total frame spectrum or summed spectra in the frame (i.e., ignores IM dimension).
 >Example for spectrum with Scan value 630: Arrays_intensity/630, Arrays_mzbin/630.
 
+For IM Agilent '.d', CCS calibration coefficients included as HDF5 dataset if detected:
+* CCScalDT = [Tfix, Beta] for DT
+* CCScalSLIM = [C0, C1, C2, C3] for SLIM
+
 Example scripts are provided in the respective folders. R requires the rhdf5 package and Python requires the h5py, hdf5plugin, numpy and matplotlib packages (see requirements.txt).
 
 ### Metadata table columns
@@ -120,7 +124,7 @@ aivett.bilbao@pnnl.gov
 
 ### Reference
 
-If you use MZA please cite: Bilbao et al. "MZA: a data conversion tool to facilitate software development and artificial intelligence research in multidimensional mass spectrometry". Journal of Proteome Research https://doi.org/10.1021/acs.jproteome.2c00313.
+If you use MZA please cite: Bilbao et al. "MZA: a data conversion tool to facilitate software development and artificial intelligence research in multidimensional mass spectrometry". Journal of Proteome Research 2023 https://doi.org/10.1021/acs.jproteome.2c00313.
 
 ### License addendum
 This software binary and example scripts are freely provided under the BSD License here included. 
