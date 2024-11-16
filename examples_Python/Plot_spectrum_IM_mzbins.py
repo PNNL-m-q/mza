@@ -18,9 +18,17 @@ metadata = mza["Metadata"]
 metadata = pd.DataFrame(np.array(metadata))
 metadata.to_csv(mzafile.replace(".mza",".csv"), index=False)
 
-# Reading spectrum with scan ID 630 (RT 0.25 min, IM 15.6 ms), 2 jagged arrays with the intensity and mzbin values:
-intensities = mza["Arrays_intensity/630"][:]
-mzbins = mza["Arrays_mzbin/630"][:]
+# Reading spectrum from row 585 in metadata table:
+#   conrresponds to scan ID 630 (RT 0.25 min, IM 15.6 ms)
+#   contains base peak ion 121.05 m/z
+scanRow = 585
+scanID = metadata["Scan"][scanRow]
+mzaPath = str(metadata["MzaPath"][scanRow], 'utf-8')
+print(scanID)
+
+# 2 jagged arrays with the intensity and mzbin values:
+intensities = mza["Arrays_intensity" + mzaPath + "/" + str(scanID)][:] # Array at "Arrays_intensity/630" in mza file
+mzbins = mza["Arrays_mzbin" + mzaPath + "/" + str(scanID)][:] # Array at "Arrays_mzbin/630" in mza file
 
 # Get array of m/z values (common for all spectra in the file) and map mzbins to m/z:
 full_mz = mza["Full_mz_array"][:]

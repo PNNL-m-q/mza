@@ -15,9 +15,17 @@ metadata = mza["Metadata"]
 metadata = pd.DataFrame(np.array(metadata))
 metadata.to_csv(mzafile.replace(".mza",".csv"), index=False)
 
-# Reading spectrum with scan number 2431, 2 jagged arrays with the intensity and mz values:
-intensities = mza["Arrays_intensity/2431"][:]
-mz = mza["Arrays_mz/2431"][:]
+# Reading spectrum from row 2250 in metadata table:
+#   corresponds to scan ID 2251 (RT 18.02 min)
+#   contains base peak ion 703.57 m/z
+scanRow = 2250
+scanID = metadata["Scan"][scanRow]
+mzaPath = str(metadata["MzaPath"][scanRow], 'utf-8')
+print(scanID)
+
+# 2 jagged arrays with the intensity and m/z values:
+intensities = mza["Arrays_intensity" + mzaPath + "/" + str(scanID)][:] # Array at "Arrays_intensity/2251" in mza file
+mz = mza["Arrays_mz" + mzaPath + "/" + str(scanID)][:] # Array at "Arrays_mz/2251" in mza file
 
 mza.close()
 
@@ -25,7 +33,7 @@ mza.close()
 fig = plt.figure()
 ax = plt.axes()
 ax.plot(mz, intensities)
-plt.title("Scan number 2431 in test file LCMSMS_Lipids_POS.mza")
+plt.title("Scan number 2251 in test file LCMSMS_Lipids_POS.mza")
 plt.xlabel("m/z")
 plt.ylabel("Intensity")
 plt.show()
