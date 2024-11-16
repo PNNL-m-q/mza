@@ -3,17 +3,12 @@ __date__ = "December 4, 2020"
 
 from source.MZA_SpectrumInfo import *
 from source.MZA import *
-
-from threading import Thread
 import os
 import re
-
 import pymzml
+import numpy as np
 
-class MzML2mza(Thread):
-
-    def __init__(self):
-        Thread.__init__(self)
+class MzML2mza():
     
     def write_mza_from_mzml(self, ms_file, intensityThreshold = 1, output_mzafile=""):
         if(output_mzafile == ""):
@@ -44,55 +39,78 @@ class MzML2mza(Thread):
             ('MS:1000129', ['value']),  # Polarity, negative scan
             ('MS:1000133', ['value']),  # Activation, collision-induced dissociation (CID)
             ('MS:1000422', ['value']),  # Activation, beam-type collision-induced dissociation (HCD)
+            ('MS:1000045', ['value']),  # Collision energy
             ('MS:1002476', ['value'])   # Ion mobility time
         ]
 
         # Read mzML file 
-        msfile = pymzml.run.Reader(ms_file, extraAccessions = extraAccessions)
-        previousMS1 = 0
-        for spectrum in msfile:
-            spectrumInfo = MZA_SpectrumInfo()
-            scan = spectrum.get('id')
-            spectrumInfo.scan_number = scan
-            spectrumInfo.ms_level = int(spectrum.get('MS:1000511', 0))  
-
-            if spectrum.get('MS:1000130'):
-                spectrumInfo.polarity = Polarity.POS
-            if spectrum.get('MS:1000129'):
-                spectrumInfo.polarity = Polarity.NEG
- 
-            # TODO: add more activation/fragmentation methods
-            if spectrumInfo.ms_level == 1:
-                spectrumInfo.fragmentation = Fragmentation.NotUsed
-            elif spectrum.get('MS:1000133', 0):
-                spectrumInfo.fragmentation = Fragmentation.CID
-            elif spectrum.get('MS:1000422', 0):
-                spectrumInfo.fragmentation = Fragmentation.HCD
+        with pymzml.run.Reader(ms_file, extraAccessions = extraAccessions) as msfile:
+            previousMS1 = 0
+            seen_scan_ids = set()  # Track seen scan IDs
+            scan_counter = 1       # Counter for generating unique scans
             
-            spectrumInfo.retention_time = spectrum.get('MS:1000016', 0)
-            spectrumInfo.precursor_monoisotopic_mz = spectrum.get('MS:1000744', 0)
-            spectrumInfo.precursor_charge = int(spectrum.get('MS:1000041', 0))
-            spectrumInfo.isolation_window_target_mz = spectrum.get('MS:1000827', 0)
-            spectrumInfo.isolation_window_lower_offset = spectrum.get('MS:1000828', 0)
-            spectrumInfo.isolation_window_upper_offset = spectrum.get('MS:1000829', 0)
-            spectrumInfo.tic = sum(spectrum.i)
-           
-            if spectrum.get('MS:1000512', 0):
-                spectrumInfo.scan_label = spectrum.get('MS:1000512', 0)
+            for spectrum in msfile:
+                spectrumInfo = MZA_SpectrumInfo()
+                original_scan = spectrum.get('id')
+                
+                # Check if scan ID already exists, if so use counter
+                if original_scan in seen_scan_ids:
+                    scan = scan_counter
+                else:
+                    scan = original_scan
+                
+                scan_counter += 1
+                seen_scan_ids.add(scan)
+                spectrumInfo.scan_number = scan
+                spectrumInfo.ms_level = int(spectrum.get('MS:1000511', 0))  
 
-            if spectrum.get('MS:1002476', 0):
-                spectrumInfo.ion_mobility_time = spectrum.get('MS:1002476', 0)
+                if spectrum.get('MS:1000130'):
+                    spectrumInfo.polarity = Polarity.POS
+                if spectrum.get('MS:1000129'):
+                    spectrumInfo.polarity = Polarity.NEG
+    
+                # TODO: add more activation/fragmentation methods
+                if spectrumInfo.ms_level == 1:
+                    spectrumInfo.fragmentation = Fragmentation.NotUsed
+                elif spectrum.get('MS:1000133', 0):
+                    spectrumInfo.fragmentation = Fragmentation.CID
+                elif spectrum.get('MS:1000422', 0):
+                    spectrumInfo.fragmentation = Fragmentation.HCD
 
-            if spectrumInfo.ms_level == 1:
-                previousMS1 = scan
-            else:
-                spectrumInfo.precursor_scan = previousMS1
+                if spectrum.get('MS:1000045'):
+                    spectrumInfo.collision_energy = int(spectrum.get('MS:1000045', 0))
+                
+                spectrumInfo.retention_time = spectrum.get('MS:1000016', 0)
+                spectrumInfo.precursor_monoisotopic_mz = spectrum.get('MS:1000744', 0)
+                spectrumInfo.precursor_charge = int(spectrum.get('MS:1000041', 0))
+                spectrumInfo.isolation_window_target_mz = spectrum.get('MS:1000827', 0)
+                spectrumInfo.isolation_window_lower_offset = spectrum.get('MS:1000828', 0)
+                spectrumInfo.isolation_window_upper_offset = spectrum.get('MS:1000829', 0)
+                spectrumInfo.tic = sum(spectrum.i)
             
-            tbh5.append(spectrumInfo.get_metadata_array()) # write spectrum metadata array
+                if spectrum.get('MS:1000512', 0):
+                    spectrumInfo.scan_label = spectrum.get('MS:1000512', 0)
 
-            # write spectrum arrays:
-            h5.create_dataset(MZA_Structure.spectra_mz_arrays + "/" + str(scan), data=spectrum.mz)
-            h5.create_dataset(MZA_Structure.spectra_intensities_arrays + "/" + str(scan), data=spectrum.i)
+                if spectrum.get('MS:1002476', 0):
+                    spectrumInfo.ion_mobility_time = spectrum.get('MS:1002476', 0)
+
+                if spectrumInfo.ms_level == 1:
+                    previousMS1 = scan
+                else:
+                    spectrumInfo.precursor_scan = previousMS1
+                
+                # Apply intensity threshold:
+                indexes = np.argwhere(spectrum.i > intensityThreshold)
+                intensities = spectrum.i[indexes].flatten()
+                mzs = spectrum.mz[indexes].flatten()
+                spectrumInfo.tic = sum(spectrum.i)
+
+                if len(intensities) > 0:
+                    tbh5.append(spectrumInfo.get_metadata_array()) # write spectrum metadata array
+                    # write spectrum arrays:
+                    h5.create_dataset(MZA_Structure.spectra_mz_arrays + "/" + str(scan), data=mzs)
+                    h5.create_dataset(MZA_Structure.spectra_intensities_arrays + "/" + str(scan), data=intensities)
+            msfile.close()
 
         h5.close()
         tbh5.flush()
